@@ -18,17 +18,35 @@ export class FacebookLoginComponent implements OnInit {
             cookie     : false,  // enable cookies to allow the server to access
                                 // the session
             xfbml      : true,  // parse social plugins on this page
-            version    : 'v2.5' // use graph api version 2.5
+            version    : 'v2.7' // use graph api version 2.5
         });
     }
 
     onFacebookLoginClick() {
-        FB.login();
+        FB.login(this.statusChangeCallback);
     }
 
     statusChangeCallback(resp) {
         if (resp.status === 'connected') {
+            
+            console.log(resp.authResponse.accessToken);
+            console.log(resp.authResponse.expiresIn);
+            console.log(resp.authResponse.signedRequest);
+            console.log(resp.authResponse.userID);
             // connect here with your server for facebook login by passing access token given by facebook
+            // Another call to facebook to get details of the user
+            FB.api('/me?fields=name,email,first_name,last_name,age_range,gender,picture', function (resp:any) {
+            console.log(resp.email);
+            console.log(resp.name);
+            console.log(resp.first_name);
+            console.log(resp.last_name);
+            console.log(resp.age_range);
+            console.log(resp.gender);
+            console.log(resp.picture);
+                
+            }, { scope: 'email,public_profile' });
+
+           
         }else if (resp.status === 'not_authorized') {
             
         }else {
@@ -36,6 +54,8 @@ export class FacebookLoginComponent implements OnInit {
         }
     };
     ngOnInit() {
+        //you may comment the follwing lines - if you do not want to check the login status on page load
+        // comment these lines (example) if you are on Register page of your application
         FB.getLoginStatus(response => {
             this.statusChangeCallback(response);
         });
